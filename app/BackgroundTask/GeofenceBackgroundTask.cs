@@ -20,6 +20,7 @@ namespace BackgroundTask
     {
         void IBackgroundTask.Run(IBackgroundTaskInstance taskInstance)
         {
+            Debug.WriteLine("Backgroundtask");
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
 
             try

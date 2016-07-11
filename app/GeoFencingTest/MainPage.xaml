@@ -8,38 +8,5 @@
     mc:Ignorable="d">
 
     <Grid Background="Black">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <TextBlock Text="Name" Foreground="White" Grid.Column="0" Grid.Row="0"/>
-        <TextBox Text="" Name="Name_input"  Foreground="White" Grid.Column="1" Grid.Row="0" />
-
-        <TextBlock Text="Latitude" Foreground="White" Grid.Column="0" Grid.Row="1" />
-        <TextBox Text="" Name="Latitude_input" Foreground="White" Grid.Column="1" Grid.Row="1" />
-
-        <TextBlock Text="Longitude" Foreground="White" Grid.Column="0" Grid.Row="2" />
-        <TextBox Text="" Name="Longitude_input" Foreground="White" Grid.Column="1" Grid.Row="2" />
-
-        <TextBlock Text="Radius" Foreground="White" Grid.Column="0" Grid.Row="3" />
-        <TextBox Text="" Name="Radius_input" Foreground="White" Grid.Column="1" Grid.Row="3" />
-
-        <TextBlock Text="Dwell Time" Foreground="White" Grid.Column="0" Grid.Row="4" />
-        <TextBox Text="" Name="DwellTime_input" Foreground="White" Grid.Column="1" Grid.Row="4" />
-
-        <TextBlock Text="Start Time" Foreground="White" Grid.Column="0" Grid.Row="5" />
-        <TextBox Text="" Name="StartTime_input" Foreground="White" Grid.Column="1" Grid.Row="5" />
-
-        <TextBlock Text="Duration" Foreground="White" Grid.Column="0" Grid.Row="6" />
-        <TextBox Text="" Name="Duration_input" Foreground="White" Grid.Column="1" Grid.Row="6" />
     </Grid>
 </Page>

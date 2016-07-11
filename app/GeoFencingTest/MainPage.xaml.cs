@@ -43,27 +43,7 @@ namespace GeoFencingTest
         {
             this.InitializeComponent();
             InitializeGeolocation();
-            try
-            {
-                String fenceId = "geofence21";
-                BasicGeoposition position;
-                position.Latitude = 52.690529;
-                position.Longitude = 5.183422;
-                position.Altitude = 0.0;
-                double radius = 200;
-                Geocircle geocircle = new Geocircle(position, radius);
-                bool singleUse = false;
-                MonitoredGeofenceStates mask = MonitoredGeofenceStates.Entered | MonitoredGeofenceStates.Exited | MonitoredGeofenceStates.Removed;
-                TimeSpan dwellTime = TimeSpan.FromSeconds(5);
-                TimeSpan duration = TimeSpan.FromHours(1);
-                DateTimeOffset startTime = DateTime.Now;
-                Geofence geofence = new Geofence(fenceId, geocircle, mask, singleUse, dwellTime, startTime, duration);
-                geofences.Add(geofence);
-                RegisterBackgroundTask();
-            } catch(Exception e)
-            {
-                Debug.WriteLine(e, "error");
-            }
+            
         }
 
         private async void InitializeGeolocation()
@@ -72,8 +52,31 @@ namespace GeoFencingTest
             if(accessStatus == GeolocationAccessStatus.Allowed) { 
                 geofences = GeofenceMonitor.Current.Geofences;
                 Debug.WriteLine(GeofenceMonitor.Current, "geofences");
-                GeofenceMonitor.Current.GeofenceStateChanged += OnGeofenceStateChanged;
-                GeofenceMonitor.Current.StatusChanged += OnGeofenceStatusChanged;
+                //GeofenceMonitor.Current.GeofenceStateChanged += OnGeofenceStateChanged;
+                //GeofenceMonitor.Current.StatusChanged += OnGeofenceStatusChanged;
+                try
+                {
+                    String fenceId = "geofence21";
+                    BasicGeoposition position;
+                    position.Latitude = 52.690529;
+                    position.Longitude = 5.183422;
+                    position.Altitude = 0.0;
+                    double radius = 200;
+                    Geocircle geocircle = new Geocircle(position, radius);
+                    bool singleUse = false;
+                    MonitoredGeofenceStates mask = MonitoredGeofenceStates.Entered | MonitoredGeofenceStates.Exited | MonitoredGeofenceStates.Removed;
+                    TimeSpan dwellTime = TimeSpan.FromSeconds(5);
+                    TimeSpan duration = TimeSpan.FromMinutes(10);
+                    DateTimeOffset startTime = DateTime.Now;
+                    Geofence geofence = new Geofence(fenceId, geocircle, mask, singleUse, dwellTime, startTime, duration);
+                    geofences.Add(geofence);
+                    RegisterBackgroundTask();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e, "error");
+                }
+
             }
         }
 
@@ -103,10 +106,11 @@ namespace GeoFencingTest
             geofenceTaskBuilder.Name = "geofenceTaskBuilderName";
             geofenceTaskBuilder.TaskEntryPoint = "BackgroundTask.GeofenceBackgroundTask";
 
-            var trigger = new LocationTrigger(LocationTriggerType.Geofence);
-            geofenceTaskBuilder.SetTrigger(trigger);
+            geofenceTaskBuilder.SetTrigger(new LocationTrigger(LocationTriggerType.Geofence));
+            //geofenceTaskBuilder.SetTrigger(new SystemTrigger(SystemTriggerType.NetworkStateChange, false));
 
             IBackgroundTaskRegistration geofenceTask = geofenceTaskBuilder.Register();
+            Debug.WriteLine("Backgroundtask registered");
             geofenceTask.Completed += new BackgroundTaskCompletedEventHandler(OnCompleted);
 
             
@@ -114,9 +118,10 @@ namespace GeoFencingTest
 
         async private void OnCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs e)
         {
+            Debug.WriteLine("Geofencebackground complete");
             if(sender != null)
             {
-                DoToast("Completed");
+                DoToast("Backgroundtask completed");
             }
         }
 
@@ -136,8 +141,6 @@ namespace GeoFencingTest
             toastNodeList.Item(0).AppendChild(toastXml.CreateTextNode("Geolocation Sample"));
 
             toastNodeList.Item(1).AppendChild(toastXml.CreateTextNode(eventName));
-            string secondLine = "There are new geofence events";
-            toastNodeList.Item(1).AppendChild(toastXml.CreateTextNode(secondLine));
 
             // now create a xml node for the audio source
             Windows.Data.Xml.Dom.IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
