@@ -35,8 +35,10 @@ namespace GeoFencingTest
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
+
     public sealed partial class MainPage : Page
     {
+        IBackgroundTaskRegistration geofenceTask;
         private IList<Geofence> geofences = new List<Geofence>();
 
         public MainPage()
@@ -52,50 +54,56 @@ namespace GeoFencingTest
             if(accessStatus == GeolocationAccessStatus.Allowed) { 
                 geofences = GeofenceMonitor.Current.Geofences;
                 Debug.WriteLine(GeofenceMonitor.Current, "geofences");
-                //GeofenceMonitor.Current.GeofenceStateChanged += OnGeofenceStateChanged;
-                //GeofenceMonitor.Current.StatusChanged += OnGeofenceStatusChanged;
                 try
                 {
-                    String fenceId = "geofence21";
+                    String fenceId = "Appedemic";
                     BasicGeoposition position;
-                    position.Latitude = 52.690529;
-                    position.Longitude = 5.183422;
+                    position.Latitude = 52.492187;
+                    position.Longitude = 4.797308;
                     position.Altitude = 0.0;
-                    double radius = 200;
+                    Double radius = 500;
                     Geocircle geocircle = new Geocircle(position, radius);
+                    BasicGeoposition sloterdijkPosition;
+                    sloterdijkPosition.Latitude = 52.389032;
+                    sloterdijkPosition.Longitude = 4.821807;
+                    sloterdijkPosition.Altitude = 0.0;
+                    Geocircle geocircleSloterdijk = new Geocircle(sloterdijkPosition, radius);
+                    BasicGeoposition hoornPosition;
+                    hoornPosition.Latitude = 52.645247;
+                    hoornPosition.Longitude = 5.054199;
+                    hoornPosition.Altitude = 0.0;
+                    Geocircle geocircleHoorn = new Geocircle(hoornPosition, radius);
                     bool singleUse = false;
                     MonitoredGeofenceStates mask = MonitoredGeofenceStates.Entered | MonitoredGeofenceStates.Exited | MonitoredGeofenceStates.Removed;
                     TimeSpan dwellTime = TimeSpan.FromSeconds(5);
-                    TimeSpan duration = TimeSpan.FromMinutes(10);
+                    TimeSpan duration = TimeSpan.FromHours(4);
                     DateTimeOffset startTime = DateTime.Now;
-                    Geofence geofence = new Geofence(fenceId, geocircle, mask, singleUse, dwellTime, startTime, duration);
-                    geofences.Add(geofence);
+                    try
+                    {
+                        Geofence geofence = new Geofence(fenceId, geocircle, mask, singleUse, dwellTime, startTime, duration);
+                        Geofence geofenceSloterdijk = new Geofence("sloterdijk", geocircleSloterdijk, mask, singleUse, dwellTime, startTime, duration);
+                        Geofence geofenceHoorn = new Geofence("Hoorn", geocircleHoorn, mask, singleUse, dwellTime, startTime, duration);
+                        geofences.Add(geofence);
+                        geofences.Add(geofenceSloterdijk);
+                        geofences.Add(geofenceHoorn);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e, "error");
+                    }
                     RegisterBackgroundTask();
+                    geofencesListView.ItemsSource = geofences;
                 }
                 catch (Exception e)
                 {
                     Debug.WriteLine(e, "error");
                 }
-
+                foreach (var fence in GeofenceMonitor.Current.Geofences)
+                {
+                    Debug.WriteLine(fence, "fence");
+                }
+                Debug.WriteLine("test");
             }
-        }
-
-        private void OnGeofenceStateChanged(GeofenceMonitor sender, object args)
-        {
-            Debug.WriteLine(sender, "state changed");
-        }
-
-        private void OnGeofenceStatusChanged(GeofenceMonitor sender, object args)
-        {
-            Debug.WriteLine(sender, "status changed");
-        }
-
-        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
-        {
-            GeofenceMonitor.Current.GeofenceStateChanged -= OnGeofenceStateChanged;
-            GeofenceMonitor.Current.StatusChanged -= OnGeofenceStatusChanged;
-
-            base.OnNavigatingFrom(e);
         }
 
         async private void RegisterBackgroundTask()
@@ -109,47 +117,8 @@ namespace GeoFencingTest
             geofenceTaskBuilder.SetTrigger(new LocationTrigger(LocationTriggerType.Geofence));
             //geofenceTaskBuilder.SetTrigger(new SystemTrigger(SystemTriggerType.NetworkStateChange, false));
 
-            IBackgroundTaskRegistration geofenceTask = geofenceTaskBuilder.Register();
+            geofenceTask = geofenceTaskBuilder.Register();
             Debug.WriteLine("Backgroundtask registered");
-            geofenceTask.Completed += new BackgroundTaskCompletedEventHandler(OnCompleted);
-
-            
         }
-
-        async private void OnCompleted(IBackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs e)
-        {
-            Debug.WriteLine("Geofencebackground complete");
-            if(sender != null)
-            {
-                DoToast("Backgroundtask completed");
-            }
-        }
-
-        private void DoToast(string eventName)
-        {
-            // pop a toast for each geofence event
-            ToastNotifier ToastNotifier = ToastNotificationManager.CreateToastNotifier();
-
-            // Create a two line toast and add audio reminder
-
-            // Here the xml that will be passed to the 
-            // ToastNotification for the toast is retrieved
-            Windows.Data.Xml.Dom.XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
-
-            // Set both lines of text
-            Windows.Data.Xml.Dom.XmlNodeList toastNodeList = toastXml.GetElementsByTagName("text");
-            toastNodeList.Item(0).AppendChild(toastXml.CreateTextNode("Geolocation Sample"));
-
-            toastNodeList.Item(1).AppendChild(toastXml.CreateTextNode(eventName));
-
-            // now create a xml node for the audio source
-            Windows.Data.Xml.Dom.IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
-            Windows.Data.Xml.Dom.XmlElement audio = toastXml.CreateElement("audio");
-            audio.SetAttribute("src", "ms-winsoundevent:Notification.SMS");
-
-            ToastNotification toast = new ToastNotification(toastXml);
-            ToastNotifier.Show(toast);
-        }
-
     }
 }

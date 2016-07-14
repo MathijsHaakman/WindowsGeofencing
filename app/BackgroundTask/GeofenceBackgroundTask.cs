@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Diagnostics;
-using System.Collections.ObjectModel;
-using System.Threading;
 using Windows.ApplicationModel.Background;
-using Windows.Data.Json;
-using Windows.Storage;
-using Windows.Devices.Geolocation;
 using Windows.Devices.Geolocation.Geofencing;
 using Windows.UI.Notifications;
 
@@ -20,9 +10,7 @@ namespace BackgroundTask
     {
         void IBackgroundTask.Run(IBackgroundTaskInstance taskInstance)
         {
-            Debug.WriteLine("Backgroundtask");
-            BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
-
+            Debug.WriteLine("Backgroundtask activated");
             try
             {
                 // Handle geofence state change reports
@@ -32,17 +20,12 @@ namespace BackgroundTask
             {
                 DoToast("Unautorized");
             }
-            finally
-            {
-                deferral.Complete();
-            }
         }
 
         private void GetGeofenceStateChangedReports()
         {
             GeofenceMonitor monitor = GeofenceMonitor.Current;
             String geofenceItemEvent = null;
-            Debug.WriteLine("GetGeofenceStateChangedReports entering");
 
             var reports = GeofenceMonitor.Current.ReadReports();
             foreach (var report in reports)
@@ -55,19 +38,27 @@ namespace BackgroundTask
                     if (reason == GeofenceRemovalReason.Expired)
                     {
                         geofenceItemEvent += " (Removed/Expired)";
+                        Debug.WriteLine(report.Geofence.Id + " Removed/Expired");
                     }
                     else if (reason == GeofenceRemovalReason.Used)
                     {
                         geofenceItemEvent += " (Removed/Used)";
+                        Debug.WriteLine(report.Geofence.Id + " Removed/Used");
                     }
                 }
-                else if (state == GeofenceState.Entered)
+                if (state == GeofenceState.Entered)
                 {
                     geofenceItemEvent += " (Entered)";
+                    Debug.WriteLine(report.Geofence.Id + " Entered");
                 }
-                else if (state == GeofenceState.Exited)
+                if (state == GeofenceState.Exited)
                 {
                     geofenceItemEvent += " (Exited)";
+                    Debug.WriteLine(report.Geofence.Id + " Exited");
+                }
+                else
+                {
+                    Debug.WriteLine(report.Geofence.Id, " Geen state veranderd");
                 }
             }
             DoToast(geofenceItemEvent);

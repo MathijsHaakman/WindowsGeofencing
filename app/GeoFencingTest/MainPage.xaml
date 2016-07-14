@@ -5,8 +5,33 @@
     xmlns:local="using:GeoFencingTest"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="using:Windows.Devices.Geolocation.Geofencing"
     mc:Ignorable="d">
+    <Page.Resources>
+        <DataTemplate x:DataType="data:Geofence" x:Key="GeofencesDataTemplate">
+            <StackPanel Margin="0, 20, 0, 0">
+                <TextBlock FontSize="16" Text="{x:Bind Id}"  />
+                <TextBlock FontSize="14" Text="{x:Bind StartTime}" />
+                <TextBlock FontSize="14" Text="{x:Bind Duration}" />
+            </StackPanel>
+        </DataTemplate>
+    </Page.Resources>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,20,20,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
 
-    <Grid Background="Black">
+        <TextBlock Grid.Row="1" 
+                   Name="ResultTextBlock"
+                   FontSize="24"
+                   Foreground="Red"
+                   FontWeight="Bold"
+                   Margin="0,20,0,0" />
+
+        <ListView ItemsSource="{x:Bind geofences}"
+                  ItemTemplate="{StaticResource GeofencesDataTemplate}" 
+                  Name="geofencesListView">
+        </ListView>
     </Grid>
 </Page>
